@@ -1,0 +1,34 @@
+--- #YAML:1.0
+name:               WWW-Scripter-Plugin-JavaScript-SpiderMonkey
+version:            0.001
+abstract:           SpiderMonkey backend for wspjs
+author:
+    - Father Chrysostomos <org.cpan@sprout backwards>
+license:            unknown
+distribution_type:  module
+configure_requires:
+    ExtUtils::MakeMaker:  0
+build_requires:
+    ExtUtils::MakeMaker:  0
+requires:
+    constant:             1.03
+    constant::lexical:    0
+    Hash::Util::FieldHash::Compat:  0
+    HTML::DOM::Interface:  0
+    JavaScript:           1.12
+    lib:                  0
+    Scalar::Util:         0
+    strict:               0
+    Test::More:           0
+    URI::file:            0
+    warnings:             0
+    WWW::Scripter:        0
+    WWW::Scripter::Plugin::JavaScript:  0.005
+no_index:
+    directory:
+        - t
+        - inc
+generated_by:       ExtUtils::MakeMaker version 6.56
+meta-spec:
+    url:      http://module-build.sourceforge.net/META-spec-v1.4.html
+    version:  1.4
