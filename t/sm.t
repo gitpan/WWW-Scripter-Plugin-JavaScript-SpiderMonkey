@@ -9,7 +9,7 @@ use Test::More;
 
 use HTML::DOM::Interface ':all';
 use URI::file;
-use WWW::Scripter;
+use WWW::Scripter 0.016; # event2sub and $@
 
 # blank page for playing with JS; some tests need their own, though
 my $js = (my $m = new WWW::Scripter)->use_plugin('JavaScript',
@@ -89,4 +89,13 @@ SKIP:{ skip "doesn’t work yet" ,3;
 		'frame access by name';
 	ok $m->eval('frames.i === frames[0]'),
 		'the two methods return the same object';
+}
+
+
+use tests 1; # syntax errors in HTML event attributes
+{
+ my $w;
+ local $SIG{__WARN__} = sub { $w = shift };
+ $m->get('data:text/html,<body onload="a b">');
+ ok $w, "syntax errors in HTML event attributes are turned into warninsg";
 }

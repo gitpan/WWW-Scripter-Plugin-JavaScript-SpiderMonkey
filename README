@@ -1,6 +1,13 @@
-WWW::Scripter::Plugin::JavaScript::SpiderMonkey 0.001 (alpha)
+WWW::Scripter::Plugin::JavaScript::SpiderMonkey 0.002 (alpha)
 
 A SpiderMonkey back end for WWW::Scripter’s JavaScript plugin
+
+
+CHANGES IN THIS RELEASE
+
+• event2sub (which is used to compile HTML event attributes) now sets
+  $@ instead of dying, if there is a syntax error.
+• Those memory leak warnings from SpiderMonkey are gone.
 
 
 INSTALLATION
@@ -38,7 +45,7 @@ This module requires:
 
 - HTML::DOM 0.008 or higher
 
-- WWW::Scripter
+- WWW::Scripter 0.016 or higher
 
 - Hash::Util::FieldHash::Compat
 

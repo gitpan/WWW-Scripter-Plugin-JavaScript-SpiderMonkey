@@ -22,7 +22,7 @@ WriteMakefile(
      lib                            => 0,
      Test'More                      => 0,
      URI'file                       => 0,
-     WWW'Scripter                   => 0,
+     WWW'Scripter                   =>  .016, # event2sub and $@
     },
     dist   => { COMPRESS => 'gzip -9f', SUFFIX => 'gz',
                 TAR => 'COPYFILE_DISABLE=1 tar' },

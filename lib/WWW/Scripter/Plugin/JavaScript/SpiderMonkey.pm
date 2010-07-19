@@ -13,7 +13,7 @@ use JavaScript 1.12; # PerlSub type
 use Scalar::Util qw'weaken blessed ';
 use WWW'Scripter'Plugin'JavaScript 0.005; # back_end
 
-our $VERSION = '0.001';
+our $VERSION = '0.002';
 
 no constant 1.03 ();
 use constant::lexical {
@@ -32,6 +32,8 @@ use constant::lexical {
 
 my $rt;
 
+fieldhash my %destructibles;
+
 sub new {
 	$rt ||= new JavaScript::Runtime;
 
@@ -40,6 +42,10 @@ sub new {
 	$self->[wndw] = my $parathi = shift,
 	$self->[cntx] = my $cx = $rt->create_context;
 	$self->[hash] = {};
+
+	# cache $self so we can purge it in an END block
+	weaken(my $weak_self = $self);
+	$destructibles{$self} = \$weak_self;
 
 	my @wrappers;
 	@wrappers[BOOL,STR,OBJ] = @{ $cx->eval(' 0,function() {
@@ -132,6 +138,14 @@ sub new {
 	}
 
 	$self
+}
+
+END { # Empty any $selves *before*  global destruction,  to ensure that any
+ for(values %destructibles) {  # SM objects we reference go away before the
+  #$$_->DESTROY;                                       # runtime is  freed.
+  #bless $$_, __PACKAGE__ . "::twow";
+  @$$_ = ();
+ }
 }
 
 sub eval {
@@ -356,13 +370,12 @@ sub event2sub {
 	# gle-line comment at the end,  and no  line  break.  ("foo //bar"
 	# would fail without this,  because the closing }})  would be  com-
 	# mented out too.)
-	# ~~~ should this have $mech->warn instead of die?
 	($self->[cntx]->eval(
 	  "\n" x($line-1) . "(function(){"
 	  . (join '', map "with(arguments[$_])", 0..$#scope)
 	  . "return function() { $code\n } })",
 	  $url
-	)||die $@) -> ( @scope );
+	)||return) -> ( @scope );
 }
 
 sub new_function {
@@ -484,7 +497,7 @@ WWW::Scripter::Plugin::JavaScript::SpiderMonkey - SpiderMonkey backend for wspjs
 
 =head1 VERSION
 
-0.001 (alpha)
+0.002 (alpha)
 
 =head1 DESCRIPTION
 
@@ -499,12 +512,7 @@ L<WWW::Scripter::Plugin::JavaScript>.
 There are too many to list! This thing is currently very unstable, to put
 it mildly.
 
-The most glaring bug is that every time this module is used, SpiderMonkey
-emits all sorts of warning
-messages about memory leaks. The only solution right now is to open STDERR
-to F</dev/null>.
-
-If you find any other bugs, please report them via L<http://rt.cpan.org/>
+If you find any bugs, please report them via L<http://rt.cpan.org/>
 or
 L<bug-WWW-Scripter-Plugin-JavaScript-SpiderMonkey@rt.cpan.org> (long e-mail
 address, isn't it?).
