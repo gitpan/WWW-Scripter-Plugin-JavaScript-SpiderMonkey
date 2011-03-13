@@ -13,7 +13,7 @@ use JavaScript 1.12; # PerlSub type
 use Scalar::Util qw'weaken blessed ';
 use WWW'Scripter'Plugin'JavaScript 0.005; # back_end
 
-our $VERSION = '0.002';
+our $VERSION = '0.003';
 
 no constant 1.03 ();
 use constant::lexical {
@@ -42,6 +42,11 @@ sub new {
 	$self->[wndw] = my $parathi = shift,
 	$self->[cntx] = my $cx = $rt->create_context;
 	$self->[hash] = {};
+
+	# Weaken the reference to the WWW::Scripter object. Otherwise we
+	# have a reference loop:
+	#    	window -> js plugin -> sm back end -> window
+	weaken $parathi;
 
 	# cache $self so we can purge it in an END block
 	weaken(my $weak_self = $self);
@@ -142,9 +147,15 @@ sub new {
 
 END { # Empty any $selves *before*  global destruction,  to ensure that any
  for(values %destructibles) {  # SM objects we reference go away before the
-  #$$_->DESTROY;                                       # runtime is  freed.
-  #bless $$_, __PACKAGE__ . "::twow";
-  @$$_ = ();
+  # This line causes a crash in perl 5.8.8. It seems   # runtime is  freed.
+  # that 5.8.8 has some bug in av_clear in that it can end
+  # up trying to write to the xpvav  struct after the array has
+  # been freed.  Since, when the array is freed, the sv_any pointer
+  # (which usually  points to the xpvav struct) points to another freed
+  # sv, it causes a crash if that sv is used again. Or something like that.
+  # I never did finish getting to the bottom of it.
+  #@$$_ = ();
+  undef $_ for @$$_;
  }
 }
 
@@ -497,7 +508,17 @@ WWW::Scripter::Plugin::JavaScript::SpiderMonkey - SpiderMonkey backend for wspjs
 
 =head1 VERSION
 
-0.002 (alpha)
+0.003 (alpha)
+
+=head1 SYNOPSIS
+
+  use WWW::Scripter;
+  
+  my $w = new WWW::Scripter;
+  $w->use_plugin('JavaScript', engine => 'SpiderMonkey');
+  
+  $w->get("http://...");
+  # etc.
 
 =head1 DESCRIPTION
 
@@ -531,7 +552,7 @@ constant::lexical
 
 =head1 AUTHOR & COPYRIGHT
 
-Copyright (C) 2010, Father Chrysostomos (org.cpan@sprout backwards)
+Copyright (C) 2010-11, Father Chrysostomos (org.cpan@sprout backwards)
 
 This program is free software; you may redistribute it, modify it or
 both under the same terms as perl.

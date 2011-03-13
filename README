@@ -1,13 +1,13 @@
-WWW::Scripter::Plugin::JavaScript::SpiderMonkey 0.002 (alpha)
+WWW::Scripter::Plugin::JavaScript::SpiderMonkey 0.003 (alpha)
 
 A SpiderMonkey back end for WWW::Scripter’s JavaScript plugin
 
 
 CHANGES IN THIS RELEASE
 
-• event2sub (which is used to compile HTML event attributes) now sets
-  $@ instead of dying, if there is a syntax error.
-• Those memory leak warnings from SpiderMonkey are gone.
+• A circular reference preventing the  window  (WWW::Scripter)  object
+  from being freed has been fixed.
+• Perl 5.8.8 no longer crashes on exit.
 
 
 INSTALLATION
@@ -28,6 +28,9 @@ If that does not all go smoothly,  make sure  you  have  SpiderMonkey
 installed in a place where JavaScript.pm can find it. The procedure I
 use on Mac OS X is as follows (this will need to be adjusted slightly
 for other Unixes,  and a lot for Windows -- sorry I can’t help more):
+
+First download one of the js-* files at ftp://ftp.mozilla.org/pub/js/.
+Then run:
 
     tar xzf js-<version>.tar.gz
     cd js/src
@@ -71,7 +74,7 @@ Or try using man (it’s faster, in my experience):
 
 COPYRIGHT AND LICENCE
 
-Copyright © 2010 Father Chrysostomos
+Copyright © 2010-11 Father Chrysostomos
 
 This program is free software;  you may redistribute it, modify it or
 both under the same terms as perl.
